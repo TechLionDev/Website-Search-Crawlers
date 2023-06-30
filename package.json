@@ -1,0 +1,15 @@
+{
+  "name": "web-search-crawlers",
+  "version": "1.0.0",
+  "description": "This is a Git repository that contains web crawlers built with Node.js to search websites for specific content. The crawlers are located in their own folders, with an `index.js` file and an output file called `products.json`.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TechLionDev/Website-Search-Crawlers.git"
+  },
+  "author": "TeachLion Dev",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/TechLionDev/Website-Search-Crawlers/issues"
+  },
+  "homepage": "https://github.com/TechLionDev/Website-Search-Crawlers#readme"
+}
