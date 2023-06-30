@@ -2,6 +2,7 @@ const axios = require("axios")
 const cheerio = require("cheerio")
 const fs = require('fs');
 const clc = require("cli-color");
+const path = require('path');
 const error = clc.red.bold;
 const info = clc.cyan.bold;
 const success = clc.green.bold;
@@ -99,8 +100,13 @@ const SEARCH_TERMS = [
 ]
 
 let products = []
-
+const currentDate = new Date();
+const folderName = `products/${currentDate.toLocaleDateString().replaceAll('/', '_')}`;
+const folderPath = path.join(__dirname, folderName);
 async function main() {
+    if (!fs.existsSync(folderPath)) {
+        fs.mkdirSync(folderPath, { recursive: true });
+    }
     for (let SEARCH_TERM of SEARCH_TERMS) {
         await search(SEARCH_TERM)
     }
@@ -128,9 +134,10 @@ async function search(term) {
         }
         try {
             console.log(info(`(i) Saving ${products.length} Products...\n`))
-            fs.writeFile(`products/${term.replaceAll(" ", "_")}.json`, JSON.stringify(products), (err) => {
-                if (err) throw err
-            })
+            const filePath = path.join(folderPath, `${term.replaceAll(" ", "_")}.json`);
+            fs.writeFile(filePath, JSON.stringify(products), (err) => {
+                if (err) throw err;
+            });
             console.log(success(`(✓) Saved ${products.length} Products`))
         } catch {
             console.log(error(`(⬣) Failed To Save Products To JSON File\n`))
