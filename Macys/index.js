@@ -44,7 +44,7 @@ const userAgents = [
     'Mozilla / 5.0(compatible; MSIE 9.0; Windows; Windows NT 10.3; Win64; x64; en - US Trident / 5.0) '
 ];
 
-const SEARCH_TERM = "Blue Wrist Watch"
+const SEARCH_TERM = "T-Shirt"
 
 let products = []
 
