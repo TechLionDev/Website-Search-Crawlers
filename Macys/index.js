@@ -46,57 +46,65 @@ const userAgents = [
 ];
 
 const SEARCH_TERMS = [
-    "Women's Dresses",
-    "Women's Tops",
-    "Women's Jeans",
-    "Women's Skirts",
-    "Women's Blouses",
-    "Women's Sweaters",
-    "Women's Suits",
-    "Women's Activewear",
-    "Women's Coats And Jackets",
-    "Women's Socks",
-    "Women's Underwear",
-    "Women's Bras",
-    "Women's Pajamas",
-    "Men's Suits",
-    "Men's Dress Shirts",
-    "Men's Pants",
-    "Men's Jeans",
-    "Men's Shorts",
-    "Men's Sweaters",
-    "Men's Coats And Jackets",
-    "Men's Socks",
-    "Men's Underwear",
-    "Men's T-Shirts",
-    "Men's Polos",
-    "Men's Activewear",
-    "Boys' Clothing",
-    "Boys' Shirts",
-    "Boys' Pants",
-    "Boys' Shorts",
-    "Boys' Jackets",
-    "Boys' Socks",
-    "Boys' Underwear",
-    "Girls' Clothing",
-    "Girls' Dresses",
-    "Girls' Tops",
-    "Girls' Pants",
-    "Girls' Shorts",
-    "Girls' Skirts",
-    "Girls' Jackets",
-    "Girls' Socks",
-    "Girls' Underwear",
-    "Home Decor",
-    "Furniture",
-    "Kitchen Appliances",
-    "Bedding",
-    "Beauty Products",
-    "Jewelry",
-    "Electronics",
-    "Handbags",
-    "Shoes",
-    "Watches"
+    "Dresses",
+    "Tops",
+    "Sweaters",
+    "Jeans",
+    "Pants",
+    "Skirts",
+    "Activewear",
+    "Swim Wear",
+    "Polos",
+    "Suits",
+    "Blazers",
+    "Boots",
+    "Sandals",
+    "Sneakers",
+    "Dress Shoes",
+    "Hand Bags",
+    "Backpacks",
+    "Wallets",
+    "Skincare",
+    "Perfume",
+    "Cologne",
+    "Haircare",
+    "Bath",
+    "Pillows",
+    "Blankets",
+    "Curtains",
+    "Rugs",
+    "Mirrors",
+    "Candles",
+    "Refrigerators",
+    "Ovens",
+    "Microwaves",
+    "Dishwashers",
+    "Coffee Maker",
+    "Blender",
+    "Mixers",
+    "Cookware",
+    "Rings",
+    "Necklaces",
+    "Bracelets",
+    "Earrings",
+    "Watches",
+    "Suitcases",
+    "Sofas",
+    "Loveseats",
+    "Recliners",
+    "Coffee Tables",
+    "TV Stands",
+    "Dressers",
+    "Night Stands",
+    "Dining Tables",
+    "Dining Chairs",
+    "Desks",
+    "Office Chairs",
+    "Desk Organizers",
+    "Cabinets",
+    "Umbrellas",
+    "Fire Pits",
+    "Mattresses",
 ]
 
 let products = []
@@ -113,9 +121,86 @@ async function main() {
 }
 
 async function search(term) {
-    const url = `https://www.macys.com/shop/featured/${term}/Productsperpage,Sortby/120,TOP_RATED`
+    // const url = `https://www.macys.com/shop/featured/${term}/Productsperpage,Sortby/120,TOP_RATED`
+    const womensUrl = `https://www.macys.com/shop/featured/${term}/Gender,Productsperpage,Sortby/Women,120,TOP_RATED`
+    const mensUrl = `https://www.macys.com/shop/featured/${term}/Gender,Productsperpage,Sortby/Men,120,TOP_RATED`
+    const girlsUrl = `https://www.macys.com/shop/featured/${term}/Gender,Productsperpage,Sortby/Girls,120,TOP_RATED`
+    const boysUrl = `https://www.macys.com/shop/featured/${term}/Gender,Productsperpage,Sortby/Boys,120,TOP_RATED`
+    // Womens
     try {
-        let response = await axios.get(url, {
+        let response = await axios.get(womensUrl, {
+            'User-Agent': userAgents[Math.floor(Math.random() * userAgents.length)]
+        })
+        let $ = cheerio.load(response.data)
+        let totalNumOfPages = $('ul.pagination > li > div.select-container > select > option:last-child').attr('value');
+        console.log(success(`(✓) Found ${totalNumOfPages ? totalNumOfPages + ' Pages' : 'One Page'} of results for Womens \"${term}\"\n______________________________________________________\n`))
+        if (totalNumOfPages) {
+            for (let pageNum = 1; pageNum <= totalNumOfPages; pageNum++) {
+                let pageUrl = `https://www.macys.com/shop/featured/${term}/Gender,Pageindex,Productsperpage,Sortby/Women,${pageNum},120,TOP_RATED`
+                try {
+                    console.log(info(`(i) Crawling Page ${pageNum} of ${totalNumOfPages} for Womens \"${term}\"\n`))
+                    await crawlPage(pageUrl, pageNum)
+                } catch {
+                    console.log(error(`(⬣) Failed To Crawl Search Results Page ${pageNum} of ${totalNumOfPages} for Womens \"${term}\"\n`));
+                }
+            }
+        } else {
+            console.log(info(`(i) Crawling Page 1 of 1 for Womens \"${term}\"\n`))
+            await crawlPage(womensUrl, 1)
+        }
+        try {
+            console.log(info(`(i) Saving ${products.length} Products...\n`))
+            const filePath = path.join(folderPath, `W_${term.replaceAll(" ", "_")}.json`);
+            fs.writeFile(filePath, JSON.stringify(products), (err) => {
+                if (err) throw err;
+            });
+            console.log(success(`(✓) Saved ${products.length} Products\n______________________________________________________\n`))
+            products = []
+        } catch {
+            console.log(error(`(⬣) Failed To Save Products To JSON File\n`))
+        }
+    } catch {
+        console.log(error(`(⬣) Failed To Search Macy's for the term with the Womens Filter: \"${term}\"\n`));
+    }
+    // Mens
+    try {
+        let response = await axios.get(mensUrl, {
+            'User-Agent': userAgents[Math.floor(Math.random() * userAgents.length)]
+        })
+        let $ = cheerio.load(response.data)
+        let totalNumOfPages = $('ul.pagination > li > div.select-container > select > option:last-child').attr('value');
+        console.log(success(`(✓) Found ${totalNumOfPages ? totalNumOfPages + ' Pages' : 'One Page'} of results for Mens \"${term}\"\n______________________________________________________\n`))
+        if (totalNumOfPages) {
+            for (let pageNum = 1; pageNum <= totalNumOfPages; pageNum++) {
+                let pageUrl = `https://www.macys.com/shop/featured/${term}/Gender,Pageindex,Productsperpage,Sortby/Men,${pageNum},120,TOP_RATED`
+                try {
+                    console.log(info(`(i) Crawling Page ${pageNum} of ${totalNumOfPages} for Mens \"${term}\"\n`))
+                    await crawlPage(pageUrl, pageNum)
+                } catch {
+                    console.log(error(`(⬣) Failed To Crawl Search Results Page ${pageNum} of ${totalNumOfPages} for Mens \"${term}\"\n`));
+                }
+            }
+        } else {
+            console.log(info(`(i) Crawling Page 1 of 1 for Mens \"${term}\"\n`))
+            await crawlPage(mensUrl, 1)
+        }
+        try {
+            console.log(info(`(i) Saving ${products.length} Products...\n`))
+            const filePath = path.join(folderPath, `M_${term.replaceAll(" ", "_")}.json`);
+            fs.writeFile(filePath, JSON.stringify(products), (err) => {
+                if (err) throw err;
+            });
+            console.log(success(`(✓) Saved ${products.length} Products\n______________________________________________________\n`))
+            products = []
+        } catch {
+            console.log(error(`(⬣) Failed To Save Products To JSON File\n`))
+        }
+    } catch {
+        console.log(error(`(⬣) Failed To Search Macy's for the term with the Mens Filter: \"${term}\"\n`));
+    }
+    // Girls
+    try {
+        let response = await axios.get(girlsUrl, {
             'User-Agent': userAgents[Math.floor(Math.random() * userAgents.length)]
         })
         let $ = cheerio.load(response.data)
@@ -123,27 +208,67 @@ async function search(term) {
         console.log(success(`(✓) Found ${totalNumOfPages ? totalNumOfPages + ' Pages' : 'One Page'} of results for \"${term}\"\n______________________________________________________\n`))
         if (totalNumOfPages) {
             for (let pageNum = 1; pageNum <= totalNumOfPages; pageNum++) {
-                let pageUrl = `https://www.macys.com/shop/featured/${term}/Pageindex,Productsperpage,Sortby/${pageNum},120,TOP_RATED`
+                let pageUrl = `https://www.macys.com/shop/featured/${term}/Gender,Pageindex,Productsperpage,Sortby/Girls,${pageNum},120,TOP_RATED`
                 try {
-                    console.log(info(`(i) Crawling Page ${pageNum} of ${totalNumOfPages} for \"${term}\"\n`))
+                    console.log(info(`(i) Crawling Page ${pageNum} of ${totalNumOfPages} for Girls \"${term}\"\n`))
                     await crawlPage(pageUrl, pageNum)
                 } catch {
-                    console.log(error(`(⬣) Failed To Crawl Search Results Page ${pageNum} of ${totalNumOfPages} for \"${term}\"\n`));
+                    console.log(error(`(⬣) Failed To Crawl Search Results Page ${pageNum} of ${totalNumOfPages} for Girls \"${term}\"\n`));
                 }
             }
+        } else {
+            console.log(info(`(i) Crawling Page 1 of 1 for Girls \"${term}\"\n`))
+            await crawlPage(girlsUrl, 1)
         }
         try {
             console.log(info(`(i) Saving ${products.length} Products...\n`))
-            const filePath = path.join(folderPath, `${term.replaceAll(" ", "_")}.json`);
+            const filePath = path.join(folderPath, `G_${term.replaceAll(" ", "_")}.json`);
             fs.writeFile(filePath, JSON.stringify(products), (err) => {
                 if (err) throw err;
             });
-            console.log(success(`(✓) Saved ${products.length} Products`))
+            console.log(success(`(✓) Saved ${products.length} Products\n______________________________________________________\n`))
+            products = []
         } catch {
             console.log(error(`(⬣) Failed To Save Products To JSON File\n`))
         }
     } catch {
-        console.log(error(`(⬣) Failed To Search Macy's for the term: \"${term}\"\n`));
+        console.log(error(`(⬣) Failed To Search Macy's for the term with the Girls Filter: \"${term}\"\n`));
+    }
+    // Boys
+    try {
+        let response = await axios.get(boysUrl, {
+            'User-Agent': userAgents[Math.floor(Math.random() * userAgents.length)]
+        })
+        let $ = cheerio.load(response.data)
+        let totalNumOfPages = $('ul.pagination > li > div.select-container > select > option:last-child').attr('value');
+        console.log(success(`(✓) Found ${totalNumOfPages ? totalNumOfPages + ' Pages' : 'One Page'} of results for \"${term}\"\n______________________________________________________\n`))
+        if (totalNumOfPages) {
+            for (let pageNum = 1; pageNum <= totalNumOfPages; pageNum++) {
+                let pageUrl = `https://www.macys.com/shop/featured/${term}/Gender,Pageindex,Productsperpage,Sortby/Boys,${pageNum},120,TOP_RATED`
+                try {
+                    console.log(info(`(i) Crawling Page ${pageNum} of ${totalNumOfPages} for Boys \"${term}\"\n`))
+                    await crawlPage(pageUrl, pageNum)
+                } catch {
+                    console.log(error(`(⬣) Failed To Crawl Search Results Page ${pageNum} of ${totalNumOfPages} for Boys \"${term}\"\n`));
+                }
+            }
+        } else {
+            console.log(info(`(i) Crawling Page 1 of 1 for Boys \"${term}\"\n`))
+            await crawlPage(boysUrl, 1)
+        }
+        try {
+            console.log(info(`(i) Saving ${products.length} Products...\n`))
+            const filePath = path.join(folderPath, `B_${term.replaceAll(" ", "_")}.json`);
+            fs.writeFile(filePath, JSON.stringify(products), (err) => {
+                if (err) throw err;
+            });
+            console.log(success(`(✓) Saved ${products.length} Products\n______________________________________________________\n`))
+            products = []
+        } catch {
+            console.log(error(`(⬣) Failed To Save Products To JSON File\n`))
+        }
+    } catch {
+        console.log(error(`(⬣) Failed To Search Macy's for the term with the Boys Filter: \"${term}\"\n`));
     }
 }
 

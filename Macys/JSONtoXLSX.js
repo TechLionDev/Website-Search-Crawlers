@@ -1,26 +1,35 @@
 const XLSX = require('xlsx');
 const fs = require('fs');
 const path = require('path');
+const clc = require('cli-color');
+const error = clc.red.bold;
+const info = clc.cyan.bold;
+const success = clc.green.bold;
 
 // Specify the folder paths
 const jsonFolderPath = './products';
 const excelFolderPath = './Excel';
 
-// Create the Excel folder if it doesn't exist
-if (!fs.existsSync(excelFolderPath)) {
-  fs.mkdirSync(excelFolderPath);
-}
+// Get the current date for the subfolder
+const currentDate = new Date();
+const dateFolderName = currentDate.toLocaleDateString().replaceAll('/', '_');
+const excelSubFolderPath = path.join(excelFolderPath, dateFolderName);
 
-// Read all JSON files in the products folder
-fs.readdir(jsonFolderPath, (err, files) => {
+// Create the Excel subfolder if it doesn't exist
+fs.mkdirSync(excelSubFolderPath, { recursive: true });
+
+// Read JSON files in the subfolder corresponding to the current date
+fs.readdir(path.join(jsonFolderPath, dateFolderName), (err, files) => {
   if (err) {
-    console.error('Error reading folder:', err);
+    console.log(error('(⬣) Error reading folder:', err));
     return;
   }
+  
 
   files.forEach((file) => {
     if (file.endsWith('.json')) {
-      const jsonFilePath = path.join(jsonFolderPath, file);
+      console.log(info(`(i) Converting ${file}...\n`));
+      const jsonFilePath = path.join(jsonFolderPath, dateFolderName, file);
       const jsonContent = fs.readFileSync(jsonFilePath, 'utf8');
       const jsonData = JSON.parse(jsonContent);
 
@@ -29,14 +38,14 @@ fs.readdir(jsonFolderPath, (err, files) => {
 
       // Create a new workbook and add the worksheet to it
       const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Raw Data');
 
-      // Save the XLSX file in the Excel folder with the same name as the JSON file
+      // Save the XLSX file in the subfolder with the same name as the JSON file
       const xlsxFileName = `${path.parse(file).name}.xlsx`;
-      const xlsxFilePath = path.join(excelFolderPath, xlsxFileName);
+      const xlsxFilePath = path.join(excelSubFolderPath, xlsxFileName);
       XLSX.writeFile(workbook, xlsxFilePath);
 
-      console.log(`Converted ${file} to ${xlsxFileName}`);
+      console.log(success(`(✓) Converted ${file} to ${xlsxFileName}\n______________________________________________________\n`));
     }
   });
 });
