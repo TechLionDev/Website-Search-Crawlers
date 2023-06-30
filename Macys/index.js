@@ -44,12 +44,66 @@ const userAgents = [
     'Mozilla / 5.0(compatible; MSIE 9.0; Windows; Windows NT 10.3; Win64; x64; en - US Trident / 5.0) '
 ];
 
-const SEARCH_TERM = "T-Shirt"
+const SEARCH_TERMS = [
+    "Women's Dresses",
+    "Women's Tops",
+    "Women's Jeans",
+    "Women's Skirts",
+    "Women's Blouses",
+    "Women's Sweaters",
+    "Women's Suits",
+    "Women's Activewear",
+    "Women's Coats And Jackets",
+    "Women's Socks",
+    "Women's Underwear",
+    "Women's Bras",
+    "Women's Pajamas",
+    "Men's Suits",
+    "Men's Dress Shirts",
+    "Men's Pants",
+    "Men's Jeans",
+    "Men's Shorts",
+    "Men's Sweaters",
+    "Men's Coats And Jackets",
+    "Men's Socks",
+    "Men's Underwear",
+    "Men's T-Shirts",
+    "Men's Polos",
+    "Men's Activewear",
+    "Boys' Clothing",
+    "Boys' Shirts",
+    "Boys' Pants",
+    "Boys' Shorts",
+    "Boys' Jackets",
+    "Boys' Socks",
+    "Boys' Underwear",
+    "Girls' Clothing",
+    "Girls' Dresses",
+    "Girls' Tops",
+    "Girls' Pants",
+    "Girls' Shorts",
+    "Girls' Skirts",
+    "Girls' Jackets",
+    "Girls' Socks",
+    "Girls' Underwear",
+    "Home Decor",
+    "Furniture",
+    "Kitchen Appliances",
+    "Bedding",
+    "Beauty Products",
+    "Jewelry",
+    "Electronics",
+    "Handbags",
+    "Shoes",
+    "Watches"
+]
 
 let products = []
 
 async function main() {
-    await search(SEARCH_TERM)
+    for (let SEARCH_TERM of SEARCH_TERMS) {
+        await search(SEARCH_TERM)
+    }
 }
 
 async function search(term) {
@@ -60,21 +114,21 @@ async function search(term) {
         })
         let $ = cheerio.load(response.data)
         let totalNumOfPages = $('ul.pagination > li > div.select-container > select > option:last-child').attr('value');
-        console.log(success(`(✓) Found ${totalNumOfPages ? totalNumOfPages + ' Pages' : 'One Page'} of results\n______________________________________________________\n`))
+        console.log(success(`(✓) Found ${totalNumOfPages ? totalNumOfPages + ' Pages' : 'One Page'} of results for \"${term}\"\n______________________________________________________\n`))
         if (totalNumOfPages) {
-            for (let pageNum = 1; pageNum <= totalNumOfPages; pageNum++){
+            for (let pageNum = 1; pageNum <= totalNumOfPages; pageNum++) {
                 let pageUrl = `https://www.macys.com/shop/featured/${term}/Pageindex,Productsperpage,Sortby/${pageNum},120,TOP_RATED`
                 try {
-                    console.log(info(`(i) Crawling Page ${pageNum} of ${totalNumOfPages}\n`))
+                    console.log(info(`(i) Crawling Page ${pageNum} of ${totalNumOfPages} for \"${term}\"\n`))
                     await crawlPage(pageUrl, pageNum)
                 } catch {
-                    console.log(error(`(⬣) Failed To Crawl Search Results Page ${pageNum}\n`));
+                    console.log(error(`(⬣) Failed To Crawl Search Results Page ${pageNum} of ${totalNumOfPages} for \"${term}\"\n`));
                 }
             }
         }
         try {
             console.log(info(`(i) Saving ${products.length} Products...\n`))
-            fs.writeFile(`products/${term.replaceAll(" ","_")}.json`, JSON.stringify(products), (err) => {
+            fs.writeFile(`products/${term.replaceAll(" ", "_")}.json`, JSON.stringify(products), (err) => {
                 if (err) throw err
             })
             console.log(success(`(✓) Saved ${products.length} Products`))
@@ -88,7 +142,7 @@ async function search(term) {
 
 async function crawlPage(url, page) {
     try {
-        let response = await axios.get(url,{
+        let response = await axios.get(url, {
             'User-Agent': userAgents[Math.floor(Math.random() * userAgents.length)]
         })
         let $ = cheerio.load(response.data)
@@ -111,7 +165,7 @@ async function crawlPage(url, page) {
             products.push(product)
         })
         console.log(success(`(✓) Found ${pageProducts.length} Products On Page ${page}\n______________________________________________________\n`))
-    } catch {}
+    } catch { }
 }
 
 main();
