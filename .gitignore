@@ -1,6 +1,6 @@
 **/node_modules/
 **/products/**/*.json
 **/Excel/**/*.xlsx
-uploadToDB.js
+**/uploadToDB.js
 .env
 prisma
