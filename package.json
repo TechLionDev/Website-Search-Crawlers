@@ -11,5 +11,11 @@
   "bugs": {
     "url": "https://github.com/TechLionDev/Website-Search-Crawlers/issues"
   },
-  "homepage": "https://github.com/TechLionDev/Website-Search-Crawlers#readme"
+  "homepage": "https://github.com/TechLionDev/Website-Search-Crawlers#readme",
+  "dependencies": {
+    "@prisma/client": "^4.16.2",
+    "cli-color": "^2.0.3",
+    "dotenv": "^16.3.1",
+    "prisma": "^4.16.2"
+  }
 }
